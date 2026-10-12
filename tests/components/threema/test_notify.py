@@ -15,7 +15,7 @@ from homeassistant.components.threema.client import (
     ThreemaRateLimitError,
     ThreemaSendError,
 )
-from homeassistant.components.threema.const import SUBENTRY_TYPE_RECIPIENT
+from homeassistant.components.threema.const import DOMAIN, SUBENTRY_TYPE_RECIPIENT
 from homeassistant.config_entries import ConfigSubentryDataWithId
 from homeassistant.const import CONF_RECIPIENT
 from homeassistant.core import HomeAssistant
@@ -83,6 +83,11 @@ async def test_notify_entities_get_separate_devices(
     notify_entities = [e for e in entities if e.domain == NOTIFY_DOMAIN]
     assert len(notify_entities) == 2
 
+    gateway_device = device_registry.async_get_device_by_identifier(
+        (DOMAIN, MOCK_GATEWAY_ID), config_entry_id=mock_config_entry.entry_id
+    )
+    assert gateway_device is not None
+
     device_ids = {e.device_id for e in notify_entities}
     assert len(device_ids) == 2
     for device_id in device_ids:
@@ -91,6 +96,7 @@ async def test_notify_entities_get_separate_devices(
         assert device is not None
         assert device.config_entry_id == mock_config_entry.entry_id
         assert device.config_subentry_id is not None
+        assert device.via_device_id == gateway_device.id
 
 
 @pytest.mark.parametrize("mock_subentries", [[]])

@@ -4,9 +4,10 @@ import logging
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 
 from .client import ThreemaAPIClient
-from .const import CONF_API_SECRET, CONF_GATEWAY_ID, CONF_PRIVATE_KEY
+from .const import CONF_API_SECRET, CONF_GATEWAY_ID, CONF_PRIVATE_KEY, DOMAIN
 from .coordinator import ThreemaConfigEntry, ThreemaCreditsCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,6 +28,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ThreemaConfigEntry) -> b
     await coordinator.async_config_entry_first_refresh()
 
     entry.runtime_data = coordinator
+
+    # Create the gateway device first, the recipient devices link to it.
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        entry_type=dr.DeviceEntryType.SERVICE,
+        manufacturer="Threema",
+        model="Gateway",
+        identifiers={(DOMAIN, client.gateway_id)},
+        name=entry.title,
+    )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))

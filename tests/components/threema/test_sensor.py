@@ -44,6 +44,7 @@ async def test_credits_sensor(
     assert device is not None
     assert device.identifiers == {("threema", MOCK_GATEWAY_ID)}
     assert device.name == mock_config_entry.title
+    assert device.model == "Gateway"
 
 
 async def test_credits_sensor_update(

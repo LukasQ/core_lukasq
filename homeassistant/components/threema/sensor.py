@@ -5,7 +5,7 @@ from typing import override
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -39,12 +39,7 @@ class ThreemaCreditsSensor(CoordinatorEntity[ThreemaCreditsCoordinator], SensorE
         gateway_id = coordinator.client.gateway_id
 
         self._attr_unique_id = f"{gateway_id}_credits"
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            manufacturer="Threema",
-            identifiers={(DOMAIN, gateway_id)},
-            name=coordinator.config_entry.title,
-        )
+        self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, gateway_id)})
 
     @property
     @override

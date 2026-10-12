@@ -7,7 +7,11 @@ from homeassistant.config_entries import ConfigSubentry
 from homeassistant.const import CONF_RECIPIENT
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.device_registry import (
+    DeviceEntryType,
+    DeviceInfo,
+    async_get_device_id_by_identifier,
+)
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .client import (
@@ -59,6 +63,11 @@ class ThreemaNotifyEntity(NotifyEntity):
             manufacturer="Threema",
             identifiers={(DOMAIN, self._attr_unique_id)},
             name=subentry.title,
+            via_device_id=async_get_device_id_by_identifier(
+                entry.runtime_data.hass,
+                (DOMAIN, self._client.gateway_id),
+                config_entry_id=entry.entry_id,
+            ),
         )
 
     @override
